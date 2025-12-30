@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RealmSMP Economy</title>
+<title>Minecraft Economy Dashboard</title>
 <style>
 body { 
   font-family: Arial, sans-serif; 
@@ -116,10 +116,7 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
   .catch(err=>console.error("Error fetching data:",err));
 
 function getIconURL(id){
-  // Zamienia spacje na podkreślenia
-  const fileName = id.replace(/ /g, '_');
-  // Bezpośredni link do pliku (raw) z Fandom/Wiki
-  return `https://static.wikia.nocookie.net/minecraft_gamepedia/images/${fileName}`;
+  return `https://minecraft.fandom.com/wiki/Special:FilePath/${encodeURIComponent(id)}.png`;
 }
 
 function displayItems(items){
@@ -233,5 +230,3 @@ document.getElementById('searchBar').addEventListener('input',e=>{
 
 </body>
 </html>
-
-
