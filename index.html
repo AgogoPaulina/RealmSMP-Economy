@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Economy Dashboard</title>
+<title>RealmSMP Economy</title>
 <style>
 body { 
   font-family: Arial, sans-serif; 
@@ -69,7 +69,7 @@ canvas { width: 100%; height: 100px; }
 <body>
 
 <div id="logoContainer">
-  <img src="https://dl.dropboxusercontent.com/s/ua1h1mmn7z7pmikufqnkz/REALMSMP-ECONOMY-30-12-2025.png?rlkey=aulvxem1dh8fdanqj0cjn1589&st=ekgtsl5u&dl=0" alt="RealmSMP Economy Logo">
+  <img src="https://dl.dropboxusercontent.com/s/ua1h1mmn7z7pmikufqnkz/REALMSMP-ECONOMY-30-12-2025.png" alt="RealmSMP Economy Logo">
 </div>
 
 <input type="text" id="searchBar" placeholder="Search items...">
@@ -128,6 +128,7 @@ function displayItems(items){
     card.className='itemCard';
     const color = itemColors[item.hoverKey] || itemColors.default;
 
+    // Liquid glass tilt + light reflection
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -146,22 +147,16 @@ function displayItems(items){
       const gradientX = normX * 50 + 50;
       const gradientY = normY * 50 + 50;
       card.style.background = `
-        radial-gradient(
-          circle at ${gradientX}% ${gradientY}%,
-          rgba(255,255,255,0.3),
-          rgba(75,75,75,0.6)
-        )
+        radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))
       `;
-      card.style.boxShadow = `
-        ${normX*10}px ${-normY*10}px 30px ${color}, 
-        0 8px 15px rgba(0,0,0,0.6)
-      `;
+
+      card.style.boxShadow = `${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
     });
 
     card.addEventListener('mouseleave', () => {
       card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
       card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
-      card.style.background = 'rgba(255,255,255,0.1)'; 
+      card.style.background = 'rgba(255,255,255,0.1)';
     });
 
     const topContainer=document.createElement('div');
@@ -209,7 +204,8 @@ function displayItems(items){
 
     const img=document.createElement('img');
     img.src=getIconURL(item.id);
-    img.onerror=()=>{ img.src='https://via.placeholder.com/96'; };
+    img.alt=item.name;
+    img.onerror=()=>{ img.src='images/placeholder.png'; }; 
     img.style.width='96px';
     img.style.height='96px';
     img.style.marginLeft='15px';
@@ -221,13 +217,12 @@ function displayItems(items){
   });
 }
 
-document.getElementById('searchBar').addEventListener('input',e=>{
-  const searchTerm=e.target.value.toLowerCase();
-  const filtered=itemsData.filter(item=>item.name.toLowerCase().includes(searchTerm));
+document.getElementById('searchBar').addEventListener('input', e=>{
+  const searchTerm = e.target.value.toLowerCase();
+  const filtered = itemsData.filter(item => item.name.toLowerCase().includes(searchTerm));
   displayItems(filtered);
 });
 </script>
 
 </body>
 </html>
-
