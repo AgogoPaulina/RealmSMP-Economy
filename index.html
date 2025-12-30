@@ -80,11 +80,6 @@ canvas { width: 100%; height: 100px; }
 let itemsData = [];
 
 const itemColors = {
-  diamond: '#00bfff',
-  gold_ingot: '#ffd700',
-  iron_ingot: '#c0c0c0',
-  sugar_cane: '#32cd32',
-  barrier: '#e62315',
   default: '#ffffff',
   stone: '#6f6f6f',
   tuff: '#40413c',
@@ -99,100 +94,91 @@ const itemColors = {
   nether_bricks: '#261116',
   glass: '#a5b9ba',
   white_wool: '#eaebed',
-  terracotta:
-  prismarine:
-  nether_quartz:
-  nether_wart:
-  phantom_membrane:
-  spider_eye:
-  fermented_spider_eye:
-  dragons_breath:
-  breeze_rod:
-  wind_charge:
-  popped_chorus_fruit:
-  diamond:
-  gold_ingot:
-  iron_ingot:
-  emerald:
-  coal:
-  netherite_ingot:
-  redstone_dust:
-  wheat:
-  wheat_seeds:
-  carrot:
-  potato:
-  beetroot:
-  beetroot_seeds:
-  sugar_cane:
-  cactus:
-  melon:
-  melon_slice:
-  pumpkin:
-  pumpkin_seeds:
-  cocoa_beans:
-  sweet_berries:
-  glow_berries:
-  bamboo:
-  kelp:
-  sea_pickle:
-  oak_log:
-  spruce_log:
-  birch_log:
-  acacia_log:
-  dark_oak_log:
-  mangrove_log:
-  cherry_log:
-  pale_oak_log:
-  crimson_stem
-  warped_stem:
-  poppy:
-  orange_tulip:
-  dandelion:
-  azure_bluet:
-  oxeye_daisy:
-  blue_orchid:
-  cornflower:
-  pink_tulip:
-  allium
-  white_tulip
-  honey_bottle
-  honeycomb
-  raw_beef
-  steak
-  raw_porkchop
-  cooked_porkchop
-  raw_mutton
-  cooked_mutton
-  raw_chicken
-  cooked_chicken
-  raw_rabbit
-  cooked_rabbit
-  fishing_rod
-  fishing_rod
-  fishing_rod
-  raw_cod
-  raw_salmon
-  tropical_fish
-  pufferfish
-  seagrass
-  lily_pad
-  bow
-  crossbow
-  arrow
-  arrow
-  arrow
-  arrow
-  arrow
-  arrow
-  dummy(later)
-  armor_stand
-  empty_map
-  brush
-  spyglass
-  bone
-  cobweb
-  resin_clump
-  pottery_sherd
+    terracotta: '#985e43',
+  prismarine: '#6fa3a3',
+  nether_quartz: '#ece6db',
+  nether_wart: '#8b1a1a',
+  phantom_membrane: '#cfd9dd',
+  spider_eye: '#8b0000',
+  fermented_spider_eye: '#5a2e2e',
+  dragons_breath: '#b04fd6',
+  breeze_rod: '#cfdfe3',
+  wind_charge: '#b7dfe8',
+  popped_chorus_fruit: '#caa0c8',
+  diamond: '#5ee6d6',
+  gold_ingot: '#f6d64a',
+  iron_ingot: '#d8d8d8',
+  emerald: '#2ecc71',
+  coal: '#1a1a1a',
+  netherite_ingot: '#4b4747',
+  redstone_dust: '#b31212',
+  wheat: '#d8c46a',
+  wheat_seeds: '#6f8f2e',
+  carrot: '#f28c28',
+  potato: '#c9b36a',
+  beetroot: '#a3122a',
+  beetroot_seeds: '#7a3a2e',
+  sugar_cane: '#6bbf59',
+  cactus: '#2f7f3a',
+  melon: '#5fbf3a',
+  melon_slice: '#ff6f3a',
+  pumpkin: '#e67e22',
+  pumpkin_seeds: '#9c6b2f',
+  cocoa_beans: '#7a4a2e',
+  sweet_berries: '#b01e2d',
+  glow_berries: '#ffb84d',
+  bamboo: '#b6d53c',
+  kelp: '#2f6f4f',
+  sea_pickle: '#7fa31a',
+  oak_log: '#8b6a3e',
+  spruce_log: '#5a3a22',
+  birch_log: '#d7d2a3',
+  acacia_log: '#8c4a2f',
+  dark_oak_log: '#3a2a1a',
+  mangrove_log: '#5a2a2a',
+  cherry_log: '#e3b1c6',
+  pale_oak_log: '#cbbfa6',
+  crimson_stem: '#7a2e3a',
+  warped_stem: '#2a6f6f',
+  poppy: '#c1121f',
+  orange_tulip: '#f28c28',
+  dandelion: '#f1c40f',
+  azure_bluet: '#eaeaea',
+  oxeye_daisy: '#f5f5f5',
+  blue_orchid: '#3a6fd8',
+  cornflower: '#4a6fe3',
+  pink_tulip: '#f29ac1',
+  allium: '#b07ac9',
+  white_tulip: '#ffffff',
+  honey_bottle: '#f2b705',
+  honeycomb: '#e6a700',
+  raw_beef: '#8b3a3a',
+  steak: '#7a4a2e',
+  raw_porkchop: '#f2a1a1',
+  cooked_porkchop: '#c97a4a',
+  raw_mutton: '#b36a6a',
+  cooked_mutton: '#8b4a2e',
+  raw_chicken: '#f2c6a1',
+  cooked_chicken: '#c98b4a',
+  raw_rabbit: '#cfa1a1',
+  cooked_rabbit: '#8b5a3a',
+  raw_cod: '#e6e6d8',
+  raw_salmon: '#f26a5a',
+  tropical_fish: '#ff9f1c',
+  pufferfish: '#f2e26a',
+  seagrass: '#2f7f4f',
+  lily_pad: '#2f5f2f',
+  bow: '#8b5a2b',
+  crossbow: '#5a3a2a',
+  arrow: '#d8d8d8',
+  armor_stand: '#8b6a3e',
+  empty_map: '#e6dfc6',
+  brush: '#bfa26a',
+  spyglass: '#6a8bbf',
+  bone: '#e6e6d8',
+  cobweb: '#f5f5f5',
+  resin_clump: '#e07a2d',
+  pottery_sherd: '#bfa58a',
 };
 
 const API_KEY = "AIzaSyBpS-W-kviLJP0avh1mdd0YQmChkkhqTLM";
@@ -333,6 +319,7 @@ document.getElementById('searchBar').addEventListener('input', e=>{
 
 </body>
 </html>
+
 
 
 
