@@ -22,6 +22,11 @@ h1 {
   color: #ffd700; 
 }
 
+h2 {
+  margin: 10px 0;
+  color: #ffd700;
+}
+
 #searchBar { 
   display: block; 
   margin: 0 auto 20px auto; 
@@ -32,18 +37,6 @@ h1 {
   border: none; 
   font-size: 16px; 
 }
-
-#itemsContainer {
-  display: grid;
-  gap: 15px;
-  padding: 10px 20px;
-  grid-template-columns: repeat(5, 1fr);
-}
-
-@media (max-width: 1200px) { #itemsContainer { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 900px) { #itemsContainer { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 600px) { #itemsContainer { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 400px) { #itemsContainer { grid-template-columns: 1fr; } }
 
 .itemCard {
   background: rgba(255, 255, 255, 0.1);
@@ -58,8 +51,6 @@ h1 {
   transform-style: preserve-3d;
 }
 
-.itemName { font-weight: bold; margin-bottom: 5px; }
-.itemPrice { margin-bottom: 10px; }
 canvas { width: 100%; height: 100px; }
 
 #logoContainer { text-align:center; margin:20px 0; }
@@ -69,7 +60,7 @@ canvas { width: 100%; height: 100px; }
 <body>
 
 <div id="logoContainer">
-  <img src="images/logo.png" alt="RealmSMP Economy Logo">
+  <img id="logoImg" src="images/logo.png" alt="RealmSMP Economy Logo">
 </div>
 
 <input type="text" id="searchBar" placeholder="Search items...">
@@ -79,111 +70,9 @@ canvas { width: 100%; height: 100px; }
 <script>
 let itemsData = [];
 
-const itemColors = {
-  default: '#ffffff',
-  stone: '#6f6f6f',
-  tuff: '#40413c',
-  deepslate: '#313036',
-  diorite: '#b2b2b2',
-  granite: '#7a5549',
-  andesite: '#6e6e70',
-  sand: '#ded1a6',
-  gravel: '#898788',
-  clay_ball: '#acb3cf',
-  obsidian: '#161326',
-  nether_bricks: '#261116',
-  glass: '#a5b9ba',
-  white_wool: '#eaebed',
-  terracotta: '#985e43',
-  prismarine: '#6fa3a3',
-  nether_quartz: '#ece6db',
-  nether_wart: '#8b1a1a',
-  phantom_membrane: '#cfd9dd',
-  spider_eye: '#8b0000',
-  fermented_spider_eye: '#5a2e2e',
-  dragons_breath: '#b04fd6',
-  breeze_rod: '#cfdfe3',
-  wind_charge: '#b7dfe8',
-  popped_chorus_fruit: '#caa0c8',
-  diamond: '#5ee6d6',
-  gold_ingot: '#f6d64a',
-  iron_ingot: '#d8d8d8',
-  emerald: '#2ecc71',
-  coal: '#1a1a1a',
-  netherite_ingot: '#4b4747',
-  redstone_dust: '#b31212',
-  wheat: '#d8c46a',
-  wheat_seeds: '#6f8f2e',
-  carrot: '#f28c28',
-  potato: '#c9b36a',
-  beetroot: '#a3122a',
-  beetroot_seeds: '#7a3a2e',
-  sugar_cane: '#6bbf59',
-  cactus: '#2f7f3a',
-  melon: '#5fbf3a',
-  melon_slice: '#ff6f3a',
-  pumpkin: '#e67e22',
-  pumpkin_seeds: '#9c6b2f',
-  cocoa_beans: '#7a4a2e',
-  sweet_berries: '#b01e2d',
-  glow_berries: '#ffb84d',
-  bamboo: '#b6d53c',
-  kelp: '#2f6f4f',
-  sea_pickle: '#7fa31a',
-  oak_log: '#8b6a3e',
-  spruce_log: '#5a3a22',
-  birch_log: '#d7d2a3',
-  acacia_log: '#8c4a2f',
-  dark_oak_log: '#3a2a1a',
-  mangrove_log: '#5a2a2a',
-  cherry_log: '#e3b1c6',
-  pale_oak_log: '#cbbfa6',
-  crimson_stem: '#7a2e3a',
-  warped_stem: '#2a6f6f',
-  poppy: '#c1121f',
-  orange_tulip: '#f28c28',
-  dandelion: '#f1c40f',
-  azure_bluet: '#eaeaea',
-  oxeye_daisy: '#f5f5f5',
-  blue_orchid: '#3a6fd8',
-  cornflower: '#4a6fe3',
-  pink_tulip: '#f29ac1',
-  allium: '#b07ac9',
-  white_tulip: '#ffffff',
-  honey_bottle: '#f2b705',
-  honeycomb: '#e6a700',
-  raw_beef: '#8b3a3a',
-  steak: '#7a4a2e',
-  raw_porkchop: '#f2a1a1',
-  cooked_porkchop: '#c97a4a',
-  raw_mutton: '#b36a6a',
-  cooked_mutton: '#8b4a2e',
-  raw_chicken: '#f2c6a1',
-  cooked_chicken: '#c98b4a',
-  raw_rabbit: '#cfa1a1',
-  cooked_rabbit: '#8b5a3a',
-  raw_cod: '#e6e6d8',
-  raw_salmon: '#f26a5a',
-  tropical_fish: '#ff9f1c',
-  pufferfish: '#f2e26a',
-  seagrass: '#2f7f4f',
-  lily_pad: '#2f5f2f',
-  bow: '#8b5a2b',
-  crossbow: '#5a3a2a',
-  arrow: '#d8d8d8',
-  armor_stand: '#8b6a3e',
-  empty_map: '#e6dfc6',
-  brush: '#bfa26a',
-  spyglass: '#6a8bbf',
-  bone: '#e6e6d8',
-  cobweb: '#f5f5f5',
-  resin_clump: '#e07a2d',
-  pottery_sherd: '#bfa58a'
-};
-
 const API_KEY = "AIzaSyBpS-W-kviLJP0avh1mdd0YQmChkkhqTLM";
 const SHEET_ID = "1o_SdEJFe1uO5OnjhX08BFd-nfxxBc_YmRKqN5u1lG58";
-const RANGE = "Sheet1!A2:F"; 
+const RANGE = "Sheet1!A2:G"; 
 
 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
   .then(res => res.json())
@@ -197,135 +86,172 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
           buy: Number(cols[2]),
           sell: Number(cols[3]),
           history: JSON.parse(cols[4]||"[]"),
-          hoverKey: cols[5] ? cols[5].trim().toLowerCase() : 'default'
+          hoverKey: cols[5] ? cols[5].trim().toLowerCase() : 'default',
+          npc: cols[6] ? cols[6].trim() : "Unknown"
         };
       }catch(err){
-        console.error(`Error in row ${index+2}`,err);
         return null;
       }
     }).filter(item=>item!==null);
     displayItems(itemsData);
-  })
-  .catch(err=>console.error("Error fetching data:",err));
+  });
 
 function getIconURL(id){
   return `images/${id}.png`;
+}
+
+function createItemCard(item){
+  const card=document.createElement('div');
+  card.className='itemCard';
+
+  const color = "#ffd700";
+
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const normX = (x - centerX) / centerX;
+    const normY = (y - centerY) / centerY;
+
+    const rotateX = -normY * 10;
+    const rotateY = normX * 10;
+
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+
+    const gradientX = normX * 50 + 50;
+    const gradientY = normY * 50 + 50;
+    card.style.background = `radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))`;
+
+    card.style.boxShadow = `${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
+    card.style.background = 'rgba(255,255,255,0.1)';
+  });
+
+  const top=document.createElement('div');
+  top.style.display='flex';
+  top.style.justifyContent='space-between';
+  top.style.alignItems='center';
+
+  const left=document.createElement('div');
+  left.style.flex='1';
+
+  const name=document.createElement('div');
+  name.style.fontWeight='bold';
+  name.textContent=item.name;
+
+  const price=document.createElement('div');
+  price.style.marginBottom='10px';
+  price.textContent=`Buy: ${item.buy} | Sell: ${item.sell}`;
+
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:item.history.map((_,i)=>i+1),
+      datasets:[{
+        data:item.history,
+        borderColor:'#ffd700',
+        backgroundColor:'rgba(255,215,0,0.2)',
+        tension:0.3,
+        pointRadius:2
+      }]
+    },
+    options:{
+      responsive:false,
+      maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:false}}
+    }
+  });
+
+  left.appendChild(name);
+  left.appendChild(price);
+  left.appendChild(canvas);
+
+  const img=document.createElement('img');
+  img.src=getIconURL(item.id);
+  img.alt=item.name;
+  img.onerror=()=> img.src='images/placeholder.png';
+  img.style.width='96px';
+  img.style.height='96px';
+  img.style.marginLeft='15px';
+
+  top.appendChild(left);
+  top.appendChild(img);
+  card.appendChild(top);
+  return card;
 }
 
 function displayItems(items){
   const container = document.getElementById('itemsContainer');
   container.innerHTML='';
 
-  items.forEach(item=>{
-    const card=document.createElement('div');
-    card.className='itemCard';
-    const color = itemColors[item.hoverKey] || itemColors.default;
+  const npcGroups = {};
+  items.forEach(item => {
+    const npc = item.npc || "Unknown";
+    if(!npcGroups[npc]) npcGroups[npc] = [];
+    npcGroups[npc].push(item);
+  });
 
-    // Liquid glass tilt + light reflection
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+  Object.keys(npcGroups).forEach(npc => {
+    const section = document.createElement('div');
+    section.style.marginBottom="45px";
 
-      const normX = (x - centerX) / centerX;
-      const normY = (y - centerY) / centerY;
+    const topBar=document.createElement('div');
+    topBar.style.display="flex";
+    topBar.style.alignItems="center";
+    topBar.style.gap="15px";
+    topBar.style.padding="0 20px";
 
-      const rotateX = -normY * 10;
-      const rotateY = normX * 10;
+    const title=document.createElement('h2');
+    title.textContent=npc;
 
-      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    const npcImg=document.createElement('img');
+    const iconName = npc.toLowerCase().replace(/ /g,"_");
+    npcImg.src=`images/${iconName}.png`;
+    npcImg.style.width="64px";
+    npcImg.style.height="64px";
+    npcImg.style.borderRadius="8px";
+    npcImg.style.objectFit="cover";
+    npcImg.onerror = ()=> npcImg.src="images/npc_default.png";
 
-      const gradientX = normX * 50 + 50;
-      const gradientY = normY * 50 + 50;
-      card.style.background = `
-        radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))
-      `;
+    topBar.appendChild(npcImg);
+    topBar.appendChild(title);
 
-      card.style.boxShadow = `${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
+    const grid=document.createElement('div');
+    grid.style.display="grid";
+    grid.style.gridTemplateColumns="repeat(5, 1fr)";
+    grid.style.gap="15px";
+    grid.style.padding="10px 20px";
+
+    npcGroups[npc].forEach(item => {
+      grid.appendChild(createItemCard(item));
     });
 
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-      card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
-      card.style.background = 'rgba(255,255,255,0.1)';
-    });
-
-    const topContainer=document.createElement('div');
-    topContainer.style.display='flex';
-    topContainer.style.justifyContent='space-between';
-    topContainer.style.alignItems='center';
-
-    const leftSide=document.createElement('div');
-    leftSide.style.flex='1';
-
-    const name=document.createElement('div');
-    name.className='itemName';
-    name.textContent=item.name;
-
-    const price=document.createElement('div');
-    price.className='itemPrice';
-    price.textContent=`Buy: ${item.buy} | Sell: ${item.sell}`;
-
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    new Chart(ctx,{
-      type:'line',
-      data:{
-        labels:item.history.map((_,i)=>i+1),
-        datasets:[{
-          label:'Price History',
-          data:item.history,
-          borderColor:'#ffd700',
-          backgroundColor:'rgba(255,215,0,0.2)',
-          tension:0.3,
-          pointRadius:2
-        }]
-      },
-      options:{
-        responsive:false,
-        maintainAspectRatio:true,
-        plugins:{legend:{display:false}},
-        scales:{y:{beginAtZero:false,min:Math.min(...item.history)-5,max:Math.max(...item.history)+5}}
-      }
-    });
-
-    leftSide.appendChild(name);
-    leftSide.appendChild(price);
-    leftSide.appendChild(canvas);
-
-    const img=document.createElement('img');
-    img.src=getIconURL(item.id);
-    img.alt=item.name;
-    img.onerror=()=>{ img.src='images/placeholder.png'; }; 
-    img.style.width='96px';
-    img.style.height='96px';
-    img.style.marginLeft='15px';
-
-    topContainer.appendChild(leftSide);
-    topContainer.appendChild(img);
-    card.appendChild(topContainer);
-    container.appendChild(card);
+    section.appendChild(topBar);
+    section.appendChild(grid);
+    container.appendChild(section);
   });
 }
 
 document.getElementById('searchBar').addEventListener('input', e=>{
-  const searchTerm = e.target.value.toLowerCase();
-  const filtered = itemsData.filter(item => item.name.toLowerCase().includes(searchTerm));
+  const term = e.target.value.toLowerCase();
+  const filtered = itemsData.filter(item => item.name.toLowerCase().includes(term));
   displayItems(filtered);
 });
+
+document.getElementById("logoImg").onerror = () => {
+  document.getElementById("logoImg").src = "images/npc_default.png";
+};
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
