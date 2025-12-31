@@ -7,13 +7,10 @@
 <style>
 body { 
   font-family: Arial, sans-serif; 
-  background-color: #1a1a1a; 
+  background-color: #2a2a2a; 
   color: #f0f0f0; 
   margin: 0; 
   padding: 0; 
-  background-image: url('images/bg2.png');
-  background-size: cover;
-  background-position: center;
 }
 
 h1 { 
@@ -33,17 +30,46 @@ h1 {
   font-size: 16px; 
 }
 
+.npcSection {
+  margin-bottom: 50px;
+}
+
+.npcHeader {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.npcHeader img {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+.npcHeader h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+}
+
 #itemsContainer {
   display: grid;
   gap: 15px;
   padding: 10px 20px;
-  grid-template-columns: repeat(5, 1fr);
 }
 
-@media (max-width: 1200px) { #itemsContainer { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 900px) { #itemsContainer { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 600px) { #itemsContainer { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 400px) { #itemsContainer { grid-template-columns: 1fr; } }
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 1200px) { .itemGrid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 900px) { .itemGrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .itemGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .itemGrid { grid-template-columns: 1fr; } }
 
 .itemCard {
   background: rgba(255, 255, 255, 0.1);
@@ -64,6 +90,13 @@ canvas { width: 100%; height: 100px; }
 
 #logoContainer { text-align:center; margin:20px 0; }
 #logoContainer img { max-width: 80%; height: auto; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #aaa;
+}
 </style>
 </head>
 <body>
@@ -74,6 +107,8 @@ canvas { width: 100%; height: 100px; }
 
 <input type="text" id="searchBar" placeholder="Search items...">
 <div id="itemsContainer"></div>
+
+<footer>Website created by AgogoPaulina — this project is fan-made and is not affiliated with RealmSMP.net</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -183,7 +218,7 @@ const itemColors = {
 
 const API_KEY = "AIzaSyBpS-W-kviLJP0avh1mdd0YQmChkkhqTLM";
 const SHEET_ID = "1o_SdEJFe1uO5OnjhX08BFd-nfxxBc_YmRKqN5u1lG58";
-const RANGE = "Sheet1!A2:F"; 
+const RANGE = "Sheet1!A2:G"; // id | name | buy | sell | history | hover color | npc
 
 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
   .then(res => res.json())
@@ -197,7 +232,8 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
           buy: Number(cols[2]),
           sell: Number(cols[3]),
           history: JSON.parse(cols[4]||"[]"),
-          hoverKey: cols[5] ? cols[5].trim().toLowerCase() : 'default'
+          hoverKey: cols[5] ? cols[5].trim().toLowerCase() : 'default',
+          npc: cols[6] ? cols[6].trim() : 'Unknown'
         };
       }catch(err){
         console.error(`Error in row ${index+2}`,err);
@@ -208,125 +244,133 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
   })
   .catch(err=>console.error("Error fetching data:",err));
 
-function getIconURL(id){
-  return `images/${id}.png`;
+function getIconURL(id){ return `images/${id}.png`; }
+
+function createItemCard(item){
+  const card=document.createElement('div');
+  card.className='itemCard';
+  const color = itemColors[item.hoverKey] || itemColors.default;
+
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const normX = (x-centerX)/centerX;
+    const normY = (y-centerY)/centerY;
+    const rotateX=-normY*10;
+    const rotateY=normX*10;
+    card.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    const gradientX = normX*50+50;
+    const gradientY = normY*50+50;
+    card.style.background=`radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))`;
+    card.style.boxShadow=`${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform='rotateX(0deg) rotateY(0deg) scale(1)';
+    card.style.boxShadow='0 4px 10px rgba(0,0,0,0.5)';
+    card.style.background='rgba(255,255,255,0.1)';
+  });
+
+  const leftSide=document.createElement('div');
+  leftSide.style.flex='1';
+
+  const name=document.createElement('div');
+  name.className='itemName';
+  name.textContent=item.name;
+
+  const price=document.createElement('div');
+  price.className='itemPrice';
+  price.textContent=`Buy: ${item.buy} | Sell: ${item.sell}`;
+
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:item.history.map((_,i)=>i+1),
+      datasets:[{ data:item.history, borderColor:'#ffd700', backgroundColor:'rgba(255,215,0,0.2)', tension:0.3, pointRadius:2 }]
+    },
+    options:{ responsive:false, maintainAspectRatio:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:false}}}
+  });
+
+  leftSide.appendChild(name);
+  leftSide.appendChild(price);
+  leftSide.appendChild(canvas);
+
+  const img=document.createElement('img');
+  img.src=getIconURL(item.id);
+  img.alt=item.name;
+  img.onerror=()=>{ img.src='images/placeholder.png'; }; 
+  img.style.width='96px';
+  img.style.height='96px';
+  img.style.marginLeft='15px';
+
+  card.appendChild(leftSide);
+  card.appendChild(img);
+  return card;
 }
 
 function displayItems(items){
-  const container = document.getElementById('itemsContainer');
+  const container=document.getElementById('itemsContainer');
   container.innerHTML='';
 
+  const npcGroups={};
   items.forEach(item=>{
-    const card=document.createElement('div');
-    card.className='itemCard';
-    const color = itemColors[item.hoverKey] || itemColors.default;
+    if(!npcGroups[item.npc]) npcGroups[item.npc]=[];
+    npcGroups[item.npc].push(item);
+  });
 
-    // Liquid glass tilt + light reflection
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+  const npcColors={
+    "Builder Ben": "#ffa600",
+    "Mystic Moira": "#bd190d",
+    "Miner Miles": "#98a391",
+    "Farmer Flo": "#e3be44",
+    "Lumberjack Luna": "#f0913e",
+    "Francine": "#e8c5fa",
+    "Blaire": "#668c4f",
+    "Frankie": "#8f4b31",
+    "Apollo": "#5b487a",
+    "Anna": "#3b44ed"
+  };
 
-      const normX = (x - centerX) / centerX;
-      const normY = (y - centerY) / centerY;
+  Object.keys(npcGroups).forEach(npc=>{
+    const section=document.createElement('div');
+    section.className='npcSection';
 
-      const rotateX = -normY * 10;
-      const rotateY = normX * 10;
+    const header=document.createElement('div');
+    header.className='npcHeader';
 
-      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    const npcImg=document.createElement('img');
+    npcImg.src=`images/${npc.toLowerCase().replace(/ /g,'_')}.png`;
+    npcImg.onerror=()=> npcImg.src='images/npc_default.png';
 
-      const gradientX = normX * 50 + 50;
-      const gradientY = normY * 50 + 50;
-      card.style.background = `
-        radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))
-      `;
+    const title=document.createElement('h2');
+    title.textContent=npc;
+    title.style.color=npcColors[npc] || '#ffd700';
 
-      card.style.boxShadow = `${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
+    header.appendChild(npcImg);
+    header.appendChild(title);
+
+    const grid=document.createElement('div');
+    grid.className='itemGrid';
+    npcGroups[npc].forEach(item=>{
+      grid.appendChild(createItemCard(item));
     });
 
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-      card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
-      card.style.background = 'rgba(255,255,255,0.1)';
-    });
-
-    const topContainer=document.createElement('div');
-    topContainer.style.display='flex';
-    topContainer.style.justifyContent='space-between';
-    topContainer.style.alignItems='center';
-
-    const leftSide=document.createElement('div');
-    leftSide.style.flex='1';
-
-    const name=document.createElement('div');
-    name.className='itemName';
-    name.textContent=item.name;
-
-    const price=document.createElement('div');
-    price.className='itemPrice';
-    price.textContent=`Buy: ${item.buy} | Sell: ${item.sell}`;
-
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    new Chart(ctx,{
-      type:'line',
-      data:{
-        labels:item.history.map((_,i)=>i+1),
-        datasets:[{
-          label:'Price History',
-          data:item.history,
-          borderColor:'#ffd700',
-          backgroundColor:'rgba(255,215,0,0.2)',
-          tension:0.3,
-          pointRadius:2
-        }]
-      },
-      options:{
-        responsive:false,
-        maintainAspectRatio:true,
-        plugins:{legend:{display:false}},
-        scales:{y:{beginAtZero:false,min:Math.min(...item.history)-5,max:Math.max(...item.history)+5}}
-      }
-    });
-
-    leftSide.appendChild(name);
-    leftSide.appendChild(price);
-    leftSide.appendChild(canvas);
-
-    const img=document.createElement('img');
-    img.src=getIconURL(item.id);
-    img.alt=item.name;
-    img.onerror=()=>{ img.src='images/placeholder.png'; }; 
-    img.style.width='96px';
-    img.style.height='96px';
-    img.style.marginLeft='15px';
-
-    topContainer.appendChild(leftSide);
-    topContainer.appendChild(img);
-    card.appendChild(topContainer);
-    container.appendChild(card);
+    section.appendChild(header);
+    section.appendChild(grid);
+    container.appendChild(section);
   });
 }
 
 document.getElementById('searchBar').addEventListener('input', e=>{
-  const searchTerm = e.target.value.toLowerCase();
-  const filtered = itemsData.filter(item => item.name.toLowerCase().includes(searchTerm));
+  const term=e.target.value.toLowerCase();
+  const filtered=itemsData.filter(item=>item.name.toLowerCase().includes(term));
   displayItems(filtered);
 });
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
