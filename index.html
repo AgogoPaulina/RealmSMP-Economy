@@ -7,10 +7,10 @@
 <style>
 body { 
   font-family: Arial, sans-serif; 
-  background-color: #1a1a1a; 
+  background-color: #2a2a2a; 
   color: #f0f0f0; 
   margin: 0; 
-  padding: 0;
+  padding: 0; 
 }
 
 h1 { 
@@ -31,41 +31,40 @@ h1 {
 }
 
 .npcSection {
-  margin-top: 50px;
-  padding: 20px 30px;
+  margin-bottom: 50px;
 }
 
 .npcHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 10px;
-}
-
-.npcHeader img {
-  width: 140px;
-  height: 140px;
-  border-radius: 15px;
+  gap: 15px;
+  padding: 0 20px;
 }
 
 .npcHeader h2 {
-  font-size: 42px;
   margin: 0;
-  text-transform: uppercase;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-.itemsGrid {
+.npcHeader img {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+#itemsContainer {
   display: grid;
   gap: 15px;
+  padding: 10px 20px;
   grid-template-columns: repeat(5, 1fr);
 }
 
-@media (max-width: 1200px) { .itemsGrid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 900px)  { .itemsGrid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 600px)  { .itemsGrid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 400px)  { .itemsGrid { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { #itemsContainer { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 900px) { #itemsContainer { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { #itemsContainer { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { #itemsContainer { grid-template-columns: 1fr; } }
 
 .itemCard {
   background: rgba(255, 255, 255, 0.1);
@@ -80,262 +79,116 @@ h1 {
   transform-style: preserve-3d;
 }
 
-.itemName { font-weight: bold; margin-bottom: 5px; }
-.itemPrice { margin-bottom: 10px; }
-
-canvas { width: 100%; height: 100px; }
+.itemCard .itemName { font-weight: bold; margin-bottom: 5px; }
+.itemCard .itemPrice { margin-bottom: 10px; }
+.itemCard canvas { width: 100%; height: 100px; }
 
 #logoContainer { text-align:center; margin:20px 0; }
 #logoContainer img { max-width: 80%; height: auto; }
 
 footer {
   text-align: center;
-  padding: 25px;
-  color: #aaaaaa;
-  border-top: 1px solid #333;
-  margin-top: 50px;
+  padding: 20px;
   font-size: 14px;
+  color: #aaa;
 }
 </style>
 </head>
 <body>
 
 <div id="logoContainer">
-  <img src="images/logo.png" alt="RealmSMP Economy Logo">
+  <img id="logoImg" src="images/logo.png" alt="RealmSMP Economy Logo">
 </div>
 
 <input type="text" id="searchBar" placeholder="Search items...">
+<div id="itemsContainer"></div>
 
-<div id="contentContainer"></div>
-
-<footer>RealmSMP Economy • Created by Paulina 💛</footer>
+<footer>Created by AgogoPaulina. Not officially affiliated with RealmSMP.net.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let itemsData = [];
 
-const npcColors = {
-  "Builder Ben": "#ffa600",
-  "Mystic Moira": "#bd190d",
-  "Miner Miles": "#98a391",
-  "Farmer Flo": "#e3be44",
-  "Lumberjack Luna": "#f0913e",
-  "Francine": "#e8c5fa",
-  "Blaire": "#668c4f",
-  "Frankie": "#8f4b31",
-  "Apollo": "#5b487a",
-  "Anna": "#3b44ed"
-};
-
-const npcOrder = Object.keys(npcColors);
-
-const itemColors = {
-  default: '#ffffff',
-  stone: '#6f6f6f',
-  tuff: '#40413c',
-  deepslate: '#313036',
-  diorite: '#b2b2b2',
-  granite: '#7a5549',
-  andesite: '#6e6e70',
-  sand: '#ded1a6',
-  gravel: '#898788',
-  clay_ball: '#acb3cf',
-  obsidian: '#161326',
-  nether_bricks: '#261116',
-  glass: '#a5b9ba',
-  white_wool: '#eaebed',
-  terracotta: '#985e43',
-  prismarine: '#6fa3a3',
-  nether_quartz: '#ece6db',
-  nether_wart: '#8b1a1a',
-  phantom_membrane: '#cfd9dd',
-  spider_eye: '#8b0000',
-  fermented_spider_eye: '#5a2e2e',
-  dragons_breath: '#b04fd6',
-  breeze_rod: '#cfdfe3',
-  wind_charge: '#b7dfe8',
-  popped_chorus_fruit: '#caa0c8',
-  diamond: '#5ee6d6',
-  gold_ingot: '#f6d64a',
-  iron_ingot: '#d8d8d8',
-  emerald: '#2ecc71',
-  coal: '#1a1a1a',
-  netherite_ingot: '#4b4747',
-  redstone_dust: '#b31212',
-  wheat: '#d8c46a',
-  wheat_seeds: '#6f8f2e',
-  carrot: '#f28c28',
-  potato: '#c9b36a',
-  beetroot: '#a3122a',
-  beetroot_seeds: '#7a3a2e',
-  sugar_cane: '#6bbf59',
-  cactus: '#2f7f3a',
-  melon: '#5fbf3a',
-  melon_slice: '#ff6f3a',
-  pumpkin: '#e67e22',
-  pumpkin_seeds: '#9c6b2f',
-  cocoa_beans: '#7a4a2e',
-  sweet_berries: '#b01e2d',
-  glow_berries: '#ffb84d',
-  bamboo: '#b6d53c',
-  kelp: '#2f6f4f',
-  sea_pickle: '#7fa31a',
-  oak_log: '#8b6a3e',
-  spruce_log: '#5a3a22',
-  birch_log: '#d7d2a3',
-  acacia_log: '#8c4a2f',
-  dark_oak_log: '#3a2a1a',
-  mangrove_log: '#5a2a2a',
-  cherry_log: '#e3b1c6',
-  pale_oak_log: '#cbbfa6',
-  crimson_stem: '#7a2e3a',
-  warped_stem: '#2a6f6f',
-  poppy: '#c1121f',
-  orange_tulip: '#f28c28',
-  dandelion: '#f1c40f',
-  azure_bluet: '#eaeaea',
-  oxeye_daisy: '#f5f5f5',
-  blue_orchid: '#3a6fd8',
-  cornflower: '#4a6fe3',
-  pink_tulip: '#f29ac1',
-  allium: '#b07ac9',
-  white_tulip: '#ffffff',
-  honey_bottle: '#f2b705',
-  honeycomb: '#e6a700',
-  raw_beef: '#8b3a3a',
-  steak: '#7a4a2e',
-  raw_porkchop: '#f2a1a1',
-  cooked_porkchop: '#c97a4a',
-  raw_mutton: '#b36a6a',
-  cooked_mutton: '#8b4a2e',
-  raw_chicken: '#f2c6a1',
-  cooked_chicken: '#c98b4a',
-  raw_rabbit: '#cfa1a1',
-  cooked_rabbit: '#8b5a3a',
-  raw_cod: '#e6e6d8',
-  raw_salmon: '#f26a5a',
-  tropical_fish: '#ff9f1c',
-  pufferfish: '#f2e26a',
-  seagrass: '#2f7f4f',
-  lily_pad: '#2f5f2f',
-  bow: '#8b5a2b',
-  crossbow: '#5a3a2a',
-  arrow: '#d8d8d8',
-  armor_stand: '#8b6a3e',
-  empty_map: '#e6dfc6',
-  brush: '#bfa26a',
-  spyglass: '#6a8bbf',
-  bone: '#e6e6d8',
-  cobweb: '#f5f5f5',
-  resin_clump: '#e07a2d',
-  pottery_sherd: '#bfa58a'
-};
-
 const API_KEY = "AIzaSyBpS-W-kviLJP0avh1mdd0YQmChkkhqTLM";
 const SHEET_ID = "1o_SdEJFe1uO5OnjhX08BFd-nfxxBc_YmRKqN5u1lG58";
-const RANGE = "Sheet1!A2:F"; 
+const RANGE = "Sheet1!A2:G"; // id | name | buy | sell | history | hover color | npc
 
 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
   .then(res => res.json())
   .then(data => {
     const rows = data.values || [];
-    itemsData = rows.map(cols=>{
-      return {
-        npc: cols[0].trim(),
-        id: cols[1].trim(),       
-        name: cols[2].trim(),
-        buy: Number(cols[3]),
-        sell: Number(cols[4]),
-        history: JSON.parse(cols[5]||"[]"),
-        hoverKey: cols[6] ? cols[6].trim().toLowerCase() : 'default'
-      };
-    });
-    renderSections(itemsData);
-  });
+    itemsData = rows.map((cols,index)=>{
+      try{
+        return {
+          id: cols[0].trim(),
+          name: cols[1].trim(),
+          buy: Number(cols[2]),
+          sell: Number(cols[3]),
+          history: JSON.parse(cols[4]||"[]"),
+          hoverColor: cols[5] ? cols[5].trim() : '#ffffff',
+          npc: cols[6] ? cols[6].trim() : "Unknown"
+        };
+      }catch(err){
+        console.error(`Error in row ${index+2}`,err);
+        return null;
+      }
+    }).filter(item=>item!==null);
+    displayItems(itemsData);
+  })
+  .catch(err=>console.error("Error fetching data:",err));
 
-function getIconURL(id){ return `images/${id}.png`; }
-function getNPCIcon(name){ return `images/npcs/${name.toLowerCase().replaceAll(" ","_")}.png`; }
-
-function renderSections(items){
-  const container = document.getElementById('contentContainer');
-  container.innerHTML="";
-
-  npcOrder.forEach(npcName=>{
-    const section=document.createElement('div');
-    section.className='npcSection';
-
-    const header=document.createElement('div');
-    header.className='npcHeader';
-
-    const img=document.createElement('img');
-    img.src=getNPCIcon(npcName);
-    img.onerror=()=>{ img.src="images/placeholder.png"; };
-
-    const h2=document.createElement('h2');
-    h2.textContent=npcName;
-    h2.style.color=npcColors[npcName];
-
-    header.appendChild(img);
-    header.appendChild(h2);
-    section.appendChild(header);
-
-    const grid=document.createElement('div');
-    grid.className='itemsGrid';
-
-    const its=items.filter(i=>i.npc===npcName);
-    its.forEach(item=> grid.appendChild(makeCard(item)));
-
-    section.appendChild(grid);
-    container.appendChild(section);
-  });
+function getIconURL(id){
+  return `images/${id}.png`;
 }
 
-function makeCard(item){
-  const card=document.createElement('div');
-  card.className='itemCard';
-  const color=itemColors[item.hoverKey]||itemColors.default;
+function createItemCard(item){
+  const card = document.createElement('div');
+  card.className = 'itemCard';
+  const color = item.hoverColor || '#ffffff';
 
-  card.addEventListener('mousemove',(e)=>{
-    const rect=card.getBoundingClientRect();
-    const x=e.clientX-rect.left;
-    const y=e.clientY-rect.top;
-    const cx=rect.width/2;
-    const cy=rect.height/2;
-    const nx=(x-cx)/cx;
-    const ny=(y-cy)/cy;
-    const rx=-ny*10;
-    const ry=nx*10;
-    const gx=nx*50+50;
-    const gy=ny*50+50;
-    card.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) scale(1.05)`;
-    card.style.background=`radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))`;
-    card.style.boxShadow=`${nx*10}px ${-ny*10}px 30px ${color},0 8px 15px rgba(0,0,0,0.6)`;
+  card.addEventListener('mousemove', e=>{
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const normX = (x - centerX)/centerX;
+    const normY = (y - centerY)/centerY;
+    const rotateX = -normY * 10;
+    const rotateY = normX * 10;
+
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    const gradientX = normX*50 + 50;
+    const gradientY = normY*50 + 50;
+    card.style.background = `radial-gradient(circle at ${gradientX}% ${gradientY}%, rgba(255,255,255,0.3), rgba(75,75,75,0.6))`;
+    card.style.boxShadow = `${normX*10}px ${-normY*10}px 30px ${color}, 0 8px 15px rgba(0,0,0,0.6)`;
   });
 
-  card.addEventListener('mouseleave',()=>{
-    card.style.transform='rotateX(0) rotateY(0) scale(1)';
-    card.style.background='rgba(255,255,255,0.1)';
-    card.style.boxShadow='0 4px 10px rgba(0,0,0,0.5)';
+  card.addEventListener('mouseleave', ()=>{
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
+    card.style.background = 'rgba(255,255,255,0.1)';
   });
 
-  const top=document.createElement('div');
-  top.style.display='flex';
-  top.style.justifyContent='space-between';
-  top.style.alignItems='center';
+  const top = document.createElement('div');
+  top.style.display = 'flex';
+  top.style.justifyContent = 'space-between';
+  top.style.alignItems = 'center';
 
-  const left=document.createElement('div');
+  const left = document.createElement('div');
   left.style.flex='1';
 
-  const name=document.createElement('div');
+  const name = document.createElement('div');
   name.className='itemName';
-  name.textContent=item.name;
+  name.textContent = item.name;
 
-  const price=document.createElement('div');
+  const price = document.createElement('div');
   price.className='itemPrice';
-  price.textContent=`Buy: ${item.buy} | Sell: ${item.sell}`;
+  price.textContent = `Buy: ${item.buy} | Sell: ${item.sell}`;
 
-  const canvas=document.createElement('canvas');
-  const ctx=canvas.getContext('2d');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
   new Chart(ctx,{
     type:'line',
     data:{
@@ -360,32 +213,90 @@ function makeCard(item){
   left.appendChild(price);
   left.appendChild(canvas);
 
-  const img=document.createElement('img');
+  const img = document.createElement('img');
   img.src=getIconURL(item.id);
+  img.alt=item.name;
+  img.onerror = ()=> img.src='images/placeholder.png';
   img.style.width='96px';
   img.style.height='96px';
   img.style.marginLeft='15px';
 
   top.appendChild(left);
   top.appendChild(img);
-
   card.appendChild(top);
+
   return card;
 }
 
+function displayItems(items){
+  const container = document.getElementById('itemsContainer');
+  container.innerHTML='';
+
+  const npcGroups = {};
+  items.forEach(item=>{
+    if(!npcGroups[item.npc]) npcGroups[item.npc]=[];
+    npcGroups[item.npc].push(item);
+  });
+
+  const npcColors = {
+    "Builder Ben": "#ffa600",
+    "Mystic Moira": "#bd190d",
+    "Miner Miles": "#98a391",
+    "Farmer Flo": "#e3be44",
+    "Lumberjack Luna": "#f0913e",
+    "Francine": "#e8c5fa",
+    "Blaire": "#668c4f",
+    "Frankie": "#8f4b31",
+    "Apollo": "#5b487a",
+    "Anna": "#3b44ed"
+  };
+
+  Object.keys(npcGroups).forEach(npc=>{
+    const section = document.createElement('div');
+    section.className = 'npcSection';
+
+    const header = document.createElement('div');
+    header.className = 'npcHeader';
+
+    const npcImg = document.createElement('img');
+    npcImg.src = `images/${npc.toLowerCase().replace(/ /g,'_')}.png`;
+    npcImg.onerror = ()=> npcImg.src='images/npc_default.png';
+    npcImg.style.width='128px';
+    npcImg.style.height='128px';
+
+    const title = document.createElement('h2');
+    title.textContent = npc;
+    title.style.color = npcColors[npc] || '#ffd700';
+    title.style.textAlign = 'center';
+
+    header.appendChild(npcImg);
+    header.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.style.display='grid';
+    grid.style.gridTemplateColumns='repeat(5,1fr)';
+    grid.style.gap='15px';
+    grid.style.padding='10px 20px';
+
+    npcGroups[npc].forEach(item=>{
+      grid.appendChild(createItemCard(item));
+    });
+
+    section.appendChild(header);
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
 document.getElementById('searchBar').addEventListener('input', e=>{
-  const term=e.target.value.toLowerCase();
-
-  const filtered = itemsData.filter(item =>
-    item.name.toLowerCase().includes(term)
-  );
-
-  if(term===""){
-    renderSections(itemsData);
-  } else {
-    renderSections(filtered);
-  }
+  const term = e.target.value.toLowerCase();
+  const filtered = itemsData.filter(item=>item.name.toLowerCase().includes(term));
+  displayItems(filtered);
 });
+
+document.getElementById("logoImg").onerror = () => {
+  document.getElementById("logoImg").src = "images/npc_default.png";
+};
 </script>
 
 </body>
